@@ -1,28 +1,66 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <button v-for="n in markers" :key="n.id" @click="onClick(n)">
+      #{{ n.id }}
+    </button>
+    <yandex-map
+      ref="map"
+      :coords="[55.72, 37.65]"
+      zoom="10"
+      style="width: 100%; height: 600px"
+    >
+      <ymap-marker
+        v-for="n in markers"
+        :key="n.id"
+        :marker-id="n.id"
+        marker-type="placemark"
+        :icon="{
+          layout: 'default#image',
+          imageHref:
+            'https://i.pinimg.com/originals/5e/6f/58/5e6f5850a76955d87f4ec9134ba6c05b.jpg',
+          imageSize: [40, 40],
+          imageOffset: [-15, -35],
+        }"
+        :coords="n.coord"
+        :balloon="{ body: n.text }"
+      ></ymap-marker>
+    </yandex-map>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import { yandexMap, ymapMarker } from "vue-yandex-maps";
+import json from "./data/data.json";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    yandexMap,
+    ymapMarker,
+  },
+  data() {
+    return {
+      trains: [],
+      markers: [
+        { coord: [55.8, 37.4], text: "opa" },
+        { coord: [55.6, 37.5], text: "opa" },
+        { coord: [55.7, 37.7], text: "opa" },
+      ].map((n, i) => ({ ...n, id: i + 1 })),
+    };
+  },
+  methods: {
+    onClick(m) {
+      this.$refs.map.myMap.balloon.open(m.coord, m.text);
+    },
+  },
+  mounted() {
+    console.log(json);
+    for (let key in json) {
+      this.trains.push(json[key]);
+    }
+    console.log(this.trains);
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style></style>
