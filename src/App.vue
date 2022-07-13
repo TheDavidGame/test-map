@@ -1,18 +1,15 @@
 <template>
-  <div id="app">
-    <button v-for="n in markers" :key="n.id" @click="onClick(n)">
-      #{{ n.id }}
-    </button>
+  <div id="app" v-if="isLoading">
     <yandex-map
       ref="map"
-      :coords="[55.72, 37.65]"
-      zoom="10"
+      :coords="[53.681, 85]"
+      zoom="14"
       style="width: 100%; height: 600px"
     >
       <ymap-marker
-        v-for="n in markers"
-        :key="n.id"
-        :marker-id="n.id"
+        v-for="(n, i) in trains"
+        :key="i"
+        :marker-id="i"
         marker-type="placemark"
         :icon="{
           layout: 'default#image',
@@ -21,8 +18,8 @@
           imageSize: [40, 40],
           imageOffset: [-15, -35],
         }"
-        :coords="n.coord"
-        :balloon="{ body: n.text }"
+        :coords="[n.coordinates.latitude, n.coordinates.longitude]"
+        :balloon="{ body: n.locotype + ' №' + n.loconumber }"
       ></ymap-marker>
     </yandex-map>
   </div>
@@ -40,25 +37,20 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       trains: [],
-      markers: [
-        { coord: [55.8, 37.4], text: "opa" },
-        { coord: [55.6, 37.5], text: "opa" },
-        { coord: [55.7, 37.7], text: "opa" },
-      ].map((n, i) => ({ ...n, id: i + 1 })),
     };
+  },
+  mounted() {
+    for (let key in json) {
+      this.trains.push(json[key]);
+    }
+    this.isLoading = true;
   },
   methods: {
     onClick(m) {
       this.$refs.map.myMap.balloon.open(m.coord, m.text);
     },
-  },
-  mounted() {
-    console.log(json);
-    for (let key in json) {
-      this.trains.push(json[key]);
-    }
-    console.log(this.trains);
   },
 };
 </script>
